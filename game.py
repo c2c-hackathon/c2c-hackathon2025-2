@@ -96,7 +96,23 @@ class Game:
 
     def when_held(self, button):
         # TODO: this is called when a button is held. Add what you need to here
-        pass
+        self.buttons: typing.List[ButtonInfo] = []
+        if button == [0]:
+            print("Works")
+        elif button == [1]:
+            print("Works")
+
+
+        elif button == [15]:
+            print("Works")
+
+        else:
+            pass
+
+
+        
+
+
 
     def when_released(self, button):
         # TODO: this is called when a button is released. Add what you need to here
