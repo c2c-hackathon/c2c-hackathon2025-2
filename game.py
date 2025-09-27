@@ -5,6 +5,7 @@ import time
 import typing
 import random
 from dataclasses import dataclass
+from colorama import Fore
 
 import library
 from matrix_button_led_controller import MatrixButtonLEDController
@@ -32,17 +33,19 @@ class Game:
         self.started = False
         self.play_game = True
         self.queue = queue.Queue()
-        self.clickedButtonIndex = -1;
+        self.clickedButtonIndex = -1
+        self.attempts = 100
 
     @property
     def correct_sound(self):
         """The sound that is played when player gets a pair"""
+        self.speaker.play_preloaded_wav("correct_answer", wait_until_done=True)
         return "correct_answer"
 
     @property
     def incorrect_sound(self):
         """The sound that is played when player makes an incorrect guess"""
-        
+        self.speaker.play_preloaded_wav("incorrect", wait_until_done=True)
         return "incorrect"
 
     @property
@@ -62,7 +65,6 @@ class Game:
             # Example logic: light up the button that was pressed with a constant color
             button = self.button_pad.get_button(button_number)
             #self.button_pad.set_button_led_color(button, "red")
-            self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
 
     def when_pressed(self, button):
@@ -76,7 +78,8 @@ class Game:
         self.button_pad.set_button_led_color(button, self.buttons[index].color)
         print(self.buttons[index].color);
         self.speaker.play_preloaded_wav(self.buttons[index].sound, wait_until_done=True)  # Play a sound when button is pressed
-
+        self.attempts -= 1
+        
         #set self.sound to button.sound
         if(self.clickedButtonIndex == -1):
             self.clickedButtonIndex = index;
@@ -84,26 +87,69 @@ class Game:
             #if the colors are the same
             if(self.buttons[self.clickedButtonIndex].color == self.buttons[index].color):
                 #if the sounds are the same
-                print(self.correct_sound)
+                self.correct_sound
+                self.buttons[index].matched = True
+                self.buttons[self.clickedButtonIndex].matched = True
+
 
 
             #if the colo   
             else:
-                print(self.incorrect_sound)
+                self.incorrect_sound
                 time.sleep(1)
                 self.button_pad.set_button_led_color(button, "black")
-                print(self.clickedButtonIndex)
                 self.button_pad.set_button_led_color(self.button_pad.get_button(self.clickedButtonIndex + 1), "black")
-
             self.clickedButtonIndex = -1
 
         
 
     def when_held(self, button):
-        print("held method is being called")
         pin = str(button.pin)
+
+
+        if(pin == "BTN1"):
+            self.button_pad.clear_button_pad()
+            self.initialize_button_pad()
+            self.clickedButtonIndex = -1
+        elif(pin == "BTN2"):
+            for i in range(len(self.buttons)):
+                self.button_pad.set_button_led_color(self.button_pad.get_button(i), self.buttons[i].color)
+            time.sleep(1)
+            self.button_pad.clear_button_pad()
+            self.initialize_button_pad()
+            self.clickedButtonIndex = -1
         # TODO: this is called when a button is held. Add what you need to here
         pass
+    def memory_mode(self):
+
+        memory_mode_user = input(Fore.RED +"Would you like memory mode \nYes or No?")
+        print(memory_mode_user)
+        if (memory_mode_user.lower() == 'yes'):
+            print('hello')
+            for i in range(len(self.buttons)):
+                print('yo')
+                self.button_pad.set_button_led_color(self.button_pad.get_button(i), self.buttons[i].color)
+            time.sleep(2)
+            self.button_pad.clear_button_pad()
+            self.initialize_button_pad()
+            self.clickedButtonIndex = -1
+
+        elif (memory_mode_user == 'no'):
+            pass
+        else:
+            pass
+        
+    def difficulty_level(self):
+        difficulty_level_user = input(Fore.RED +"What difficulty level will you choose? \n 1 2 3 or 4?")
+        if(difficulty_level_user == '2'):
+            self.attempts = 45
+        elif(difficulty_level_user == '3'):
+            self.attempts = 36
+        elif(difficulty_level_user == '4'):
+            self.attempts = 22
+        else:
+            print("That is not a difficulty level")
+        
 
     def when_released(self, button):
         # TODO: this is called when a button is released. Add what you need to here
@@ -133,11 +179,10 @@ class Game:
             sound_and_color_list.append([colors_pairs[i], sounds_pairs[i]])
 
         random.shuffle(sound_and_color_list)
-
         for i in range(16):
-            button = self.buttons.append(ButtonInfo(sound_and_color_list[i][0], sound_and_color_list[i][1], False))
+            button = self.buttons.append(ButtonInfo(sound_and_color_list[i][0], sound_and_color_list[i][1], False, i))
             #print(self.buttons[i])
-
+        print(self.buttons)
     def _start_game(self):
         self.thread = threading.Thread(target=self._background_logic_checker)
         self.thread.start()
@@ -145,6 +190,8 @@ class Game:
         self.started = True
 
     def play(self):
+        self.memory_mode()
+        self.difficulty_level()
         self._start_game()
         try:
             input("Press Enter to exit the game...")
