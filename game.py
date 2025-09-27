@@ -95,8 +95,25 @@ class Game:
         
 
     def when_held(self, button):
+        print("held method is being called")
+        pin = str(button.pin)
         # TODO: this is called when a button is held. Add what you need to here
-        pass
+        
+        if pin == "BTN1":
+            print("Works")
+        elif pin == "BTN2":
+            print("Works")
+        else:
+            pass
+
+
+    
+
+        
+
+        
+
+
 
     def when_released(self, button):
         # TODO: this is called when a button is released. Add what you need to here
