@@ -90,14 +90,25 @@ class Game:
         self.button_pad.set_button_led_color(button, self.buttons[index].color)
         print(self.buttons[index].color)
         self.speaker.play_preloaded_wav(self.buttons[index].sound, wait_until_done=True)  # Play a sound when button is pressed
-        self.attempts -= 1
-        
+        if(self.clickedButtonIndex != index):
+            self.attempts -= 1
+        print("Attempts left: " + str(self.attempts))
+        if(self.attempts <= 0):
+            self.speaker.play_preloaded_wav('disconnect_x', wait_until_done=True)  # Play a sound when button is pressed
+
+            for i in range(len(self.buttons)):
+                self.button_pad.set_button_led_color(self.button_pad.get_button(i+1), self.buttons[i].color)
+            time.sleep(5)
+            self.button_pad.clear_button_pad()
+            self.initialize_button_pad()
+            self.clickedButtonIndex = -1
         #set self.sound to button.sound
         if(self.clickedButtonIndex == -1):
             self.clickedButtonIndex = index
         else:
+           if(index != self.clickedButtonIndex and not self.buttons[self.clickedButtonIndex].matched and not self.buttons[index].matched):
             #if the colors are the same
-            if(self.buttons[self.clickedButtonIndex].color == self.buttons[index].color):
+            if(self.buttons[self.clickedButtonIndex].color == self.buttons[index].color ):
                 #if the sounds are the same
 
                 self.correct_sound
@@ -120,17 +131,19 @@ class Game:
         
 
     def when_held(self, button):
-        pin = str(button.pin)
+        index = int(str(button.pin)[3:]) 
 
+        print(index)
 
-        if(pin == "BTN1"):
+        if(index == 1):
             self.button_pad.clear_button_pad()
             self.initialize_button_pad()
             self.clickedButtonIndex = -1
-        elif(pin == "BTN2"):
-            for i in range(len(self.buttons)):
-                self.button_pad.set_button_led_color(self.button_pad.get_button(i), self.buttons[i].color)
-            time.sleep(1)
+            print('1 done')
+        elif(index == 2):
+            for i in range(0, len(self.buttons)):
+                self.button_pad.set_button_led_color(self.button_pad.get_button(i+1), self.buttons[i].color)
+            time.sleep(5)
             self.button_pad.clear_button_pad()
             self.initialize_button_pad()
             self.clickedButtonIndex = -1
@@ -144,7 +157,7 @@ class Game:
             print('hello')
             for i in range(len(self.buttons)):
                 print('yo')
-                self.button_pad.set_button_led_color(self.button_pad.get_button(i), self.buttons[i].color)
+                self.button_pad.set_button_led_color(self.button_pad.get_button(i+1), self.buttons[i].color)
             time.sleep(2)
             self.button_pad.clear_button_pad()
             self.initialize_button_pad()
@@ -204,7 +217,7 @@ class Game:
     def _start_game(self):
         self.thread = threading.Thread(target=self._background_logic_checker)
         self.thread.start()
-        self.speaker.play_preloaded_wav("slide_whistle_x", wait_until_done=True)
+        self.speaker.play_preloaded_wav("ahem_x", wait_until_done=True)
         self.started = True
 
     def play(self):
