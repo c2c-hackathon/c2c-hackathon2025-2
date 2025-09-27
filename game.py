@@ -66,6 +66,7 @@ class Game:
             # TODO: check your game state, and update things
 
     def when_pressed(self, button):
+        print(type(button))
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
         self.queue.put(button.pin.info.number)
