@@ -57,6 +57,13 @@ class Game:
     def _background_logic_checker(self):
         while self.play_game:
 
+            if all(button.matched==True for button in self.buttons):
+                print("All buttons matched! Playing end-of-game sound.")
+                self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True)
+                self.button_pad.clear_button_pad()
+                self.initialize_button_pad()
+                self.clickedButtonIndex = -1
+            
             time.sleep(0.005)  # Prevents busy-waiting
 
             if self.queue.empty():
@@ -66,9 +73,7 @@ class Game:
             print(f"Handling button {button_number}")
 
 
-            if all(button.matched==True for button in self.buttons):
-                print("All buttons matched! Playing end-of-game sound.")
-                self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True)
+            
                 
 
             
@@ -190,6 +195,7 @@ class Game:
             sound_and_color_list.append([colors_pairs[i], sounds_pairs[i]])
 
         random.shuffle(sound_and_color_list)
+        self.buttons = []
         for i in range(16):
             button = self.buttons.append(ButtonInfo(sound_and_color_list[i][0], sound_and_color_list[i][1], False, i))
 
