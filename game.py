@@ -61,7 +61,7 @@ class Game:
 
             # Example logic: light up the button that was pressed with a constant color
             button = self.button_pad.get_button(button_number)
-            self.button_pad.set_button_led_color(button, "red")
+            #self.button_pad.set_button_led_color(button, "red")
             self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
 
@@ -70,48 +70,40 @@ class Game:
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
         self.queue.put(button.pin.info.number)
+        index = int(str(button.pin)[3:]) -1
+        print(index)
         #set self.color to button.color
-        self.buttons[button.index].color = button.color;
-        #set self.sound to button.sound
-        self.buttons[button.index].sound = button.sound;
-        if(self.clickedButtonIndex == -1):
-            self.clickedButtonIndex = button.index;
-        else:
-            #check colors
-            if(self.buttons[clickedButtonIndex].color == self.buttons[button.index].color):
-                #check sounds
-                if(self.buttons[clickedButtonIndex.index].sound == self.buttons[button.index].sound):
-                    self.correct_sound();
-                else:
-                    self.incorrect_sound();
-                    self.clickedButtonIndex = -1;
+        self.button_pad.set_button_led_color(button, self.buttons[index].color)
+        print(self.buttons[index].color);
+        self.speaker.play_preloaded_wav(self.buttons[index].sound, wait_until_done=True)  # Play a sound when button is pressed
 
-                
+        #set self.sound to button.sound
+        if(self.clickedButtonIndex == -1):
+            self.clickedButtonIndex = index;
+        else:
+            #if the colors are the same
+            if(self.buttons[self.clickedButtonIndex].color == self.buttons[index].color):
+                #if the sounds are the same
+                print(self.correct_sound)
+
+
+            #if the colo   
             else:
-                self.incorrect_sound();
-                self.clickedButtonIndex = -1;
+                print(self.incorrect_sound)
+                time.sleep(1)
+                self.button_pad.set_button_led_color(button, "black")
+                print(self.clickedButtonIndex)
+                self.button_pad.set_button_led_color(self.button_pad.get_button(self.clickedButtonIndex + 1), "black")
+
+            self.clickedButtonIndex = -1
+
         
 
     def when_held(self, button):
         print("held method is being called")
         pin = str(button.pin)
         # TODO: this is called when a button is held. Add what you need to here
-        
-        if pin == "BTN1":
-            print("Works")
-        elif pin == "BTN2":
-            print("Works")
-        else:
-            pass
-
-
-    
-
-        
-
-        
-
-
+        pass
 
     def when_released(self, button):
         # TODO: this is called when a button is released. Add what you need to here
