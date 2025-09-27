@@ -95,20 +95,21 @@ class Game:
         
 
     def when_held(self, button):
+        print("held method is being called")
+        pin = str(button.pin)
         # TODO: this is called when a button is held. Add what you need to here
-        self.buttons: typing.List[ButtonInfo] = []
-        if button == [0]:
+        
+        if pin == "BTN1":
             print("Works")
-        elif button == [1]:
+        elif pin == "BTN2":
             print("Works")
-
-
-        elif button == [15]:
-            print("Works")
-
         else:
             pass
 
+
+    
+
+        
 
         
 
