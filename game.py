@@ -3,6 +3,7 @@ import queue
 import threading
 import time
 import typing
+import random
 from dataclasses import dataclass
 
 import library
@@ -53,6 +54,7 @@ class Game:
 
     def _background_logic_checker(self):
         while self.play_game:
+
             time.sleep(0.005)  # Prevents busy-waiting
             if self.queue.empty():
                 continue
@@ -102,8 +104,8 @@ class Game:
 
     def initialize_button_pad(self):
         self.button_pad.clear_button_pad()
-        # TODO: Set all buttons to a color, List of colors to choose from: https://github.com/waveform80/colorzero/blob/master/colorzero/tables.py#L315
-        # sounds are available in the sounds directory
+        self.colors = ["chartreuse", "aqua", "fuchsia", "gold", "orangered", "purple", "white", "blue"]
+        random_color = random.choice(self.colors)
         self.sounds = [
             "thunder2",
             "fart_z",
@@ -114,7 +116,12 @@ class Game:
             "bloop_x",
             "car_horn_x",
         ]
-        # TODO: assign to buttons
+
+        colors_pairs = self.colors * 2
+        random.shuffle(colors_pairs)
+        for i in range(16):
+            self.buttons.append(ButtonInfo(colors_pairs[i], "", False))
+            #print(self.buttons[i])
 
     def _start_game(self):
         self.thread = threading.Thread(target=self._background_logic_checker)
