@@ -58,11 +58,11 @@ class Game:
         while self.play_game:
 
             if all(button.matched==True for button in self.buttons):
-                print("All buttons matched! Playing end-of-game sound.")
                 self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True)
                 self.button_pad.clear_button_pad()
                 self.initialize_button_pad()
                 self.clickedButtonIndex = -1
+                
             
             time.sleep(0.005)  # Prevents busy-waiting
 
@@ -80,15 +80,12 @@ class Game:
 
 
     def when_pressed(self, button):
-        print(type(button))
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
         self.queue.put(button.pin.info.number)
         index = int(str(button.pin)[3:]) -1
-        print(index)
         #set self.color to button.color
         self.button_pad.set_button_led_color(button, self.buttons[index].color)
-        print(self.buttons[index].color)
         self.speaker.play_preloaded_wav(self.buttons[index].sound, wait_until_done=True)  # Play a sound when button is pressed
         if(self.clickedButtonIndex != index):
             self.attempts -= 1
@@ -102,6 +99,7 @@ class Game:
             self.button_pad.clear_button_pad()
             self.initialize_button_pad()
             self.clickedButtonIndex = -1
+            self.attempts = 100
         #set self.sound to button.sound
         if(self.clickedButtonIndex == -1):
             self.clickedButtonIndex = index
@@ -131,15 +129,15 @@ class Game:
         
 
     def when_held(self, button):
-        index = int(str(button.pin)[3:]) 
+        index = button.pin.info.number
 
-        print(index)
 
         if(index == 1):
             self.button_pad.clear_button_pad()
             self.initialize_button_pad()
             self.clickedButtonIndex = -1
-            print('1 done')
+            self.attempts = 100
+
         elif(index == 2):
             for i in range(0, len(self.buttons)):
                 self.button_pad.set_button_led_color(self.button_pad.get_button(i+1), self.buttons[i].color)
@@ -147,21 +145,23 @@ class Game:
             self.button_pad.clear_button_pad()
             self.initialize_button_pad()
             self.clickedButtonIndex = -1
+            self.attempts = 100
+
+
         # TODO: this is called when a button is held. Add what you need to here
         pass
     def memory_mode(self):
 
         memory_mode_user = input(Fore.RED +"Would you like memory mode \nYes or No?")
-        print(memory_mode_user)
         if (memory_mode_user.lower() == 'yes'):
-            print('hello')
             for i in range(len(self.buttons)):
-                print('yo')
                 self.button_pad.set_button_led_color(self.button_pad.get_button(i+1), self.buttons[i].color)
             time.sleep(2)
             self.button_pad.clear_button_pad()
             self.initialize_button_pad()
             self.clickedButtonIndex = -1
+            self.attempts = 100
+
 
         elif (memory_mode_user == 'no'):
             pass
@@ -175,9 +175,9 @@ class Game:
         elif(difficulty_level_user == '3'):
             self.attempts = 36
         elif(difficulty_level_user == '4'):
-            self.attempts = 22
+            self.attempts = 20
         else:
-            print("That is not a difficulty level")
+            print("Setting to easiest mode..")
         
 
     def when_released(self, button):
@@ -212,7 +212,6 @@ class Game:
         for i in range(16):
             button = self.buttons.append(ButtonInfo(sound_and_color_list[i][0], sound_and_color_list[i][1], False, i))
 
-            print(self.buttons[i])
 
     def _start_game(self):
         self.thread = threading.Thread(target=self._background_logic_checker)
@@ -221,9 +220,11 @@ class Game:
         self.started = True
 
     def play(self):
+        self.attempts = 100
         self.memory_mode()
         self.difficulty_level()
         self._start_game()
+
         try:
             input("Press Enter to exit the game...")
         except KeyboardInterrupt:
