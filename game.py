@@ -51,21 +51,28 @@ class Game:
     @property
     def end_of_game_sound(self):
         """The sound that is played when the game ends."""
+        
         return "end_of_game"
 
     def _background_logic_checker(self):
         while self.play_game:
 
             time.sleep(0.005)  # Prevents busy-waiting
+
             if self.queue.empty():
+                
                 continue
             button_number = self.queue.get()
             print(f"Handling button {button_number}")
 
-            # Example logic: light up the button that was pressed with a constant color
-            button = self.button_pad.get_button(button_number)
-            #self.button_pad.set_button_led_color(button, "red")
-            # TODO: check your game state, and update things
+
+            if all(button.matched==True for button in self.buttons):
+                print("All buttons matched! Playing end-of-game sound.")
+                self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True)
+                
+
+            
+
 
     def when_pressed(self, button):
         print(type(button))
@@ -76,20 +83,22 @@ class Game:
         print(index)
         #set self.color to button.color
         self.button_pad.set_button_led_color(button, self.buttons[index].color)
-        print(self.buttons[index].color);
+        print(self.buttons[index].color)
         self.speaker.play_preloaded_wav(self.buttons[index].sound, wait_until_done=True)  # Play a sound when button is pressed
         self.attempts -= 1
         
         #set self.sound to button.sound
         if(self.clickedButtonIndex == -1):
-            self.clickedButtonIndex = index;
+            self.clickedButtonIndex = index
         else:
             #if the colors are the same
             if(self.buttons[self.clickedButtonIndex].color == self.buttons[index].color):
                 #if the sounds are the same
+
                 self.correct_sound
                 self.buttons[index].matched = True
                 self.buttons[self.clickedButtonIndex].matched = True
+
 
 
 
@@ -100,6 +109,8 @@ class Game:
                 self.button_pad.set_button_led_color(button, "black")
                 self.button_pad.set_button_led_color(self.button_pad.get_button(self.clickedButtonIndex + 1), "black")
             self.clickedButtonIndex = -1
+
+
 
         
 
@@ -152,8 +163,8 @@ class Game:
         
 
     def when_released(self, button):
-        # TODO: this is called when a button is released. Add what you need to here
         pass
+
 
     def initialize_button_pad(self):
         self.button_pad.clear_button_pad()
@@ -181,8 +192,9 @@ class Game:
         random.shuffle(sound_and_color_list)
         for i in range(16):
             button = self.buttons.append(ButtonInfo(sound_and_color_list[i][0], sound_and_color_list[i][1], False, i))
-            #print(self.buttons[i])
-        print(self.buttons)
+
+            print(self.buttons[i])
+
     def _start_game(self):
         self.thread = threading.Thread(target=self._background_logic_checker)
         self.thread.start()
