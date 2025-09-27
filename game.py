@@ -37,19 +37,17 @@ class Game:
     @property
     def correct_sound(self):
         """The sound that is played when player gets a pair"""
-        # OPTIONAL: change this to a different sound if you want
         return "correct_answer"
 
     @property
     def incorrect_sound(self):
         """The sound that is played when player makes an incorrect guess"""
-        # OPTIONAL: change this to a different sound if you want
+        
         return "incorrect"
 
     @property
     def end_of_game_sound(self):
         """The sound that is played when the game ends."""
-        # OPTIONAL: change this to a different sound if you want
         return "end_of_game"
 
     def _background_logic_checker(self):
@@ -121,7 +119,7 @@ class Game:
 
     def initialize_button_pad(self):
         self.button_pad.clear_button_pad()
-        self.colors = ["chartreuse", "aqua", "fuchsia", "gold", "orangered", "purple", "white", "blue"]
+        self.colors = ["magenta", "aqua", "red", "gold", "green", "purple", "white", "blue"]
         random_color = random.choice(self.colors)
         self.sounds = [
             "thunder2",
@@ -135,15 +133,23 @@ class Game:
         ]
 
         colors_pairs = self.colors * 2
-        random.shuffle(colors_pairs)
+
+        sounds_pairs = self.sounds * 2
+
+        sound_and_color_list = []
         for i in range(16):
-            self.buttons.append(ButtonInfo(colors_pairs[i], "", False))
+            sound_and_color_list.append([colors_pairs[i], sounds_pairs[i]])
+
+        random.shuffle(sound_and_color_list)
+
+        for i in range(16):
+            button = self.buttons.append(ButtonInfo(sound_and_color_list[i][0], sound_and_color_list[i][1], False))
             #print(self.buttons[i])
 
     def _start_game(self):
         self.thread = threading.Thread(target=self._background_logic_checker)
         self.thread.start()
-        # TODO: play a sound to start the game
+        self.speaker.play_preloaded_wav("slide_whistle_x", wait_until_done=True)
         self.started = True
 
     def play(self):
